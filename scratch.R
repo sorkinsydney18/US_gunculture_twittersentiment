@@ -3,7 +3,7 @@ library(ggmap)
 library(tidytext)
 library(tidyverse)
 
-google_api_key <- "AIzaSyAVk2Tfe0cYOyMuXdQNSixn3Sum-TxXlzM"
+
 register_google(key = google_api_key)
 
 #sandy hook example 
