@@ -49,4 +49,8 @@ pulse7 <- search_fullarchive('"pulse nightclub"',
 
 
 #combined dataset
-pulse <- rbind(pulse1, pulse2, pulse3, pulse4, pulse5, pulse6, pulse7)
+pulse <- rbind(pulse1, pulse2, pulse3, pulse4, pulse5, pulse6, pulse7) %>%
+  distinct(text, .keep_all = TRUE) %>% 
+  filter(lang == "en")
+
+write_rds(pulse, "raw_tweets/pulse.rds")

@@ -9,7 +9,7 @@ sandyhook1 <- search_fullarchive('"Sandy Hook"',
                                   n = 100, 
                                   fromDate = "2012-12-14",
                                   toDate = "2012-12-15",
-                                  env_name = "dev")
+                                  env_name = "dev") 
 
 sandyhook2 <- search_fullarchive('"Sandy Hook"',
                                  n = 100, 
@@ -48,4 +48,8 @@ sandyhook7 <- search_fullarchive('"Sandy Hook"',
                                  env_name = "dev")
 
 #combined dataset 
-sandyhook <- rbind(sandyhook1, sandyhook2, sandyhook3, sandyhook4, sandyhook5, sandyhook6, sandyhook7)
+sandyhook <- rbind(sandyhook1, sandyhook2, sandyhook3, sandyhook4, sandyhook5, sandyhook6, sandyhook7) %>% 
+  distinct(text, .keep_all = TRUE) %>% 
+  filter(lang == "en")
+
+write_rds(sandyhook, "raw_tweets/sandyhook.rds")

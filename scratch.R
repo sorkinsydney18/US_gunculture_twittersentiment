@@ -7,7 +7,7 @@ library(tidyverse)
 register_google(key = google_api_key)
 
 #sandy hook example 
-sandy_hook1 <- search_fullarchive('"Sandy Hook"',
+sandyhook1 <- search_fullarchive('"Sandy Hook"',
                             n = 100, 
                             fromDate = "2012-12-14",
                             toDate = "2012-12-15",
@@ -55,5 +55,10 @@ stuff_clean <- stuff %>%
   mutate(trump_logical  = sum(trump)) %>% 
   filter(trump_logical == 1) 
   
+pulse <- search_tweets("shooting 'pulse nightclub'", n = 100)
 
-  
+sandyhook <- search_tweets("shooting 'sandy hook'", n = 100)
+
+vegas <- search_tweets('"las vegas" AND shooting', n = 100)
+
+parkland <- search_tweets("parkland OR 'marjory stoneman douglas' shooting", n = 100)
