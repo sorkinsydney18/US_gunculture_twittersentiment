@@ -11,9 +11,26 @@ vegas <- read_rds("raw_tweets/vegas.rds")
 parkland <- read_rds("raw_tweets/parkland.rds")
 
 
+#create dataset identifier before combining 
+
+sandyhook <- sandyhook %>% 
+  mutate(id = "Sandy Hook")
+
+pulse <- pulse %>% 
+  mutate(id = "Pulse Nightclub")
+
+vegas <- vegas %>% 
+  mutate(id = "Las Vegas (Route 91 Music Festival)")
+
+parkland <- parkland %>% 
+  mutate(id = "Parkland, FL (Marjory Stoneman Douglas High School)")
+
+
+combined <- rbind(sandyhook, pulse, vegas, parkland)
+
 #clean tweet text 
 
-sandyhook_clean <- sandyhook %>% 
+combined_clean <- combined %>% 
   mutate(tweet_text = gsub("\\s?(f|ht)(tp)(s?)(://)([^\\.]*)[\\.|/](\\S*)", 
                            "", text)) %>% 
   
@@ -28,19 +45,33 @@ sandyhook_clean <- sandyhook %>%
   #get sentiment values 
   
   mutate(word_sentiment = get_sentiment(word, method = "syuzhet")) %>%
-  group_by(status_id) %>% 
-  mutate(twt_sentiment = sum(word_sentiment)) 
-
-sandyhook_clean %>% 
+  group_by(id, status_id) %>% 
+  mutate(twt_sentiment = sum(word_sentiment)) %>% 
   group_by(date) %>% 
-  summarise(avg_sentiment = mean(twt_sentiment)) %>% 
+  mutate(avg_sentiment = mean(twt_sentiment)) %>% 
+  ungroup()
+
+#save cleaned data
+write_rds(combined_clean, "cleaned_tweets/combined_clean.rds")
+
+##test plot 
+combined_clean %>% 
+  filter(id == "Pulse Nightclub") %>% 
   ggplot(aes(y = avg_sentiment, x = date)) +
   geom_line() +
   labs(y = "Average Tweet Sentiment",
        x = "") +
-  scale_x_date(breaks = as.Date(c("2012-12-14", "2012-12-15", "2012-12-16", "2012-12-17"," 2012-12-18", "2012-12-19", "2012-12-20")), 
-                   labels = c("Dec 14", "Dec 15", "Dec 16", "Dec 17", "Dec 18", "Dec 19", "Dec 20")) +
-  scale_y_continuous(limits = c(-1,0))
+  
+  #add positive/negative indicator
+  geom_hline(yintercept=0, linetype="dashed", color = "firebrick1") +
+  theme_minimal() +
+  theme(panel.background = element_rect(fill = "lightblue"))
   
 
+#scaling for sandy hook plot
+  #scale_x_date(breaks = as.Date(c("2012-12-14", "2012-12-15", "2012-12-16", "2012-12-17"," 2012-12-18", "2012-12-19", "2012-12-20")), 
+                   #labels = c("Dec 14", "Dec 15", "Dec 16", "Dec 17", "Dec 18", "Dec 19", "Dec 20")) +
+  #scale_y_continuous(limits = c(-1,0))
+  
+##NRC Sentiment
 
