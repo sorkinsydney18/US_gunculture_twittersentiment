@@ -48,7 +48,11 @@ parkland7 <- search_fullarchive("parkland shooting",
 
 #combined dataset
 
-parkland <- rbind(parkland1, parkland2, parkland3, parkland4, parkland5, parkland6, parkland7) %>% 
+parkland_old <- rbind(parkland1, parkland2, parkland3, parkland4, parkland5, parkland6, parkland7) 
+
+write_rds(parkland_old, "raw_tweets/parkland_old.rds")
+
+parkland <- parkland_old %>% 
   distinct(text, .keep_all = TRUE) %>% 
   filter(lang == "en")
 

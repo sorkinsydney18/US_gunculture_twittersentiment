@@ -49,7 +49,11 @@ pulse7 <- search_fullarchive('"pulse nightclub"',
 
 
 #combined dataset
-pulse <- rbind(pulse1, pulse2, pulse3, pulse4, pulse5, pulse6, pulse7) %>%
+pulse_old <- rbind(pulse1, pulse2, pulse3, pulse4, pulse5, pulse6, pulse7)
+
+write_rds(pulse_old, "raw_tweets/pulse_old.rds")
+
+pulse <- pulse_old %>%
   distinct(text, .keep_all = TRUE) %>% 
   filter(lang == "en")
 

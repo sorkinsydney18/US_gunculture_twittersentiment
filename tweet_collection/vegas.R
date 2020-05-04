@@ -49,7 +49,11 @@ vegas7 <- search_fullarchive('vegas shooting',
 
 #combine data
 
-vegas <- rbind(vegas1, vegas2, vegas3, vegas4, vegas5, vegas6, vegas7) %>% 
+vegas_old <- rbind(vegas1, vegas2, vegas3, vegas4, vegas5, vegas6, vegas7) 
+
+write_rds(vegas_old, "raw_tweets/vegas_old.rds")
+
+vegas <- vegas_old %>% 
   distinct(text, .keep_all = TRUE) %>% 
   filter(lang == "en")
 
