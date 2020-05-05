@@ -27,6 +27,7 @@ parkland <- parkland %>%
 
 
 combined <- rbind(sandyhook, pulse, vegas, parkland)
+write_rds(combined, "raw_tweets/combined.rds")
 
 #clean tweet text 
 
@@ -42,10 +43,15 @@ combined_clean <- combined %>%
   anti_join(stop_words) %>% 
   
   # remove all rows that contain "rt" or retweet
-  filter(!word == "rt") %>% 
+  filter(!word == "rt") 
+
+#save cleaned data
+write_rds(combined_clean, "cleaned_tweets/combined_clean.rds")
+
   
-  #get sentiment values 
+#get sentiment values 
   
+sentiment <- combined_clean %>% 
   mutate(word_sentiment = get_sentiment(word, method = "syuzhet")) %>%
   group_by(id, status_id) %>% 
   mutate(twt_sentiment = sum(word_sentiment)) %>% 
@@ -53,11 +59,11 @@ combined_clean <- combined %>%
   mutate(avg_sentiment = mean(twt_sentiment)) %>% 
   ungroup()
 
-#save cleaned data
-write_rds(combined_clean, "cleaned_tweets/combined_clean.rds")
+#save sentiment data
+write_rds(sentiment, "cleaned_tweets/sentiment.rds")
 
 ##test plot 
-combined_clean %>% 
+sentiment %>% 
   filter(id == "Pulse Nightclub") %>% 
   ggplot(aes(y = avg_sentiment, x = date)) +
   geom_line() +
@@ -77,7 +83,7 @@ combined_clean %>%
   
 ##NRC Sentiment
 
-nrc <- combined_clean %>%
+nrc <- sentiment %>%
   select(id, status_id, date, tweet_text1) %>% 
   distinct(status_id, .keep_all = TRUE) %>% 
   filter(id == "Sandy Hook")
