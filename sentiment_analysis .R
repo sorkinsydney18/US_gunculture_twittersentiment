@@ -33,6 +33,8 @@ combined <- rbind(sandyhook, pulse, vegas, parkland)
 combined_clean <- combined %>% 
   mutate(tweet_text = gsub("\\s?(f|ht)(tp)(s?)(://)([^\\.]*)[\\.|/](\\S*)", 
                            "", text)) %>% 
+  #create cleaned text duplicate
+  mutate(tweet_text1 = tweet_text) %>% 
   
   #remove time from created_at 
   mutate(date = as.Date(ymd_hms(created_at))) %>% 
@@ -74,4 +76,27 @@ combined_clean %>%
   #scale_y_continuous(limits = c(-1,0))
   
 ##NRC Sentiment
+
+nrc <- combined_clean %>%
+  select(id, status_id, date, tweet_text1) %>% 
+  distinct(status_id, .keep_all = TRUE) %>% 
+  filter(id == "Sandy Hook")
+
+#filter id to for shiny input?
+
+nrc_data <- get_nrc_sentiment(nrc$tweet_text1) %>% 
+  select(-positive, -negative)
+
+#count of each emotion 
+emo_bar = colSums(nrc_data) 
+
+emo_sum = data.frame(count=emo_bar, emotion=names(emo_bar))
+emo_sum$emotion = factor(emo_sum$emotion, levels=emo_sum$emotion[order(emo_sum$count, decreasing = TRUE)])
+
+emo_sum %>% 
+ggplot(aes(x= emotion, y= count, fill = emotion)) +
+  geom_col() +
+  theme(legend.position = "none", 
+        axis.text.x = element_text(angle = 25)) +
+  labs(x = "")
 
