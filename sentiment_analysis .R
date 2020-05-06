@@ -3,6 +3,7 @@ library(rtweet)
 library(tidytext)
 library(syuzhet)
 library(lubridate)
+library(tm)
 library(tidyverse)
 
 sandyhook <- read_rds("raw_tweets/sandyhook.rds")
@@ -64,7 +65,7 @@ write_rds(sentiment, "cleaned_tweets/sentiment.rds")
 
 ##test plot 
 sentiment %>% 
-  filter(id == "Pulse Nightclub") %>% 
+  filter(id == "Sandy Hook") %>% 
   ggplot(aes(y = avg_sentiment, x = date)) +
   geom_line() +
   labs(y = "Average Tweet Sentiment",
@@ -73,13 +74,10 @@ sentiment %>%
   #add positive/negative indicator
   geom_hline(yintercept=0, linetype="dashed", color = "firebrick1") +
   theme_minimal() +
-  theme(panel.background = element_rect(fill = "lightblue"))
+  theme(panel.background = element_rect(fill = "lightblue")) +
   
-
-#scaling for sandy hook plot
-  #scale_x_date(breaks = as.Date(c("2012-12-14", "2012-12-15", "2012-12-16", "2012-12-17"," 2012-12-18", "2012-12-19", "2012-12-20")), 
-                   #labels = c("Dec 14", "Dec 15", "Dec 16", "Dec 17", "Dec 18", "Dec 19", "Dec 20")) +
-  #scale_y_continuous(limits = c(-1,0))
+  #add date for all x axis ticks
+  scale_x_date(date_labels="%b %d",date_breaks  ="1 day")
   
 ##NRC Sentiment
 
@@ -88,10 +86,9 @@ nrc <- sentiment %>%
   distinct(status_id, .keep_all = TRUE) %>% 
   filter(id == "Sandy Hook")
 
-#filter id to for shiny input?
-
 nrc_data <- get_nrc_sentiment(nrc$tweet_text1) %>% 
-  select(-positive, -negative)
+  select(-positive, -negative) %>% 
+  summarise(colSums(nrc_data))
 
 #count of each emotion 
 emo_bar = colSums(nrc_data) 
@@ -99,10 +96,29 @@ emo_bar = colSums(nrc_data)
 emo_sum = data.frame(count=emo_bar, emotion=names(emo_bar))
 emo_sum$emotion = factor(emo_sum$emotion, levels=emo_sum$emotion[order(emo_sum$count, decreasing = TRUE)])
 
-emo_sum %>% 
+  
+  
+  emo_sum %>% 
 ggplot(aes(x= emotion, y= count, fill = emotion)) +
   geom_col() +
   theme(legend.position = "none", 
         axis.text.x = element_text(angle = 25)) +
   labs(x = "")
 
+
+
+
+
+
+
+
+
+
+
+
+#save nrc dictionary for search table 
+
+nrc_dictionary <- get_sentiment_dictionary(dictionary = "nrc", language = "english") %>% 
+  select(-lang)
+
+write_rds(nrc_dictionary, "cleaned_tweets/nrc_dictionary.rds")
