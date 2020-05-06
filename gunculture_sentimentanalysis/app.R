@@ -18,6 +18,7 @@ library(tidyverse)
 #load sentiment analysis data
 sentiment <- read_rds("cleaned_tweets/sentiment.rds")
 nrc_dictionary <- read_rds("cleaned_tweets/nrc_dictionary.rds")
+nrc <- read_rds("cleaned_tweets/nrc.rds")
 
 ui <- navbarPage("Title",
                  theme = shinytheme("journal"),
@@ -76,7 +77,7 @@ ui <- navbarPage("Title",
                                            
                                            br(),
                                            
-                                           selectInput("id", NULL,
+                                           selectInput("id1", NULL,
                                                        choices = list(
                                                            "Sandy Hook" = "Sandy Hook",
                                                            "Pulse Nightclub" = "Pulse Nightclub",
@@ -156,61 +157,46 @@ server <- function(input, output) {
         
     })
     
-#create reactive data for emotion word plot
+#emotional word plot
     
-    nrc_filter <- reactive({
+    output$nrc_plot <- renderPlot({
+      
+      nrc %>% 
+        filter(id1 == input$id1) %>% 
         
-         nrc <- sentiment %>%
-        select(id, status_id, date, tweet_text1) %>% 
-        distinct(status_id, .keep_all = TRUE) 
-        filter(id == input$id)
-        
-        nrc_data <- get_nrc_sentiment(nrc$tweet_text1) %>% 
-            select(-positive, -negative)
-        
-        #count of each emotion 
-        emo_bar = colSums(nrc_data) 
-        
-        emo_sum = data.frame(count=emo_bar, emotion=names(emo_bar))
-        emo_sum$emotion = factor(emo_sum$emotion, levels=emo_sum$emotion[order(emo_sum$count, decreasing = TRUE)])
-        
+        ggplot(aes(x = reorder(sentiment, -n), y = n, fill = sentiment)) +
+        geom_col() +
+        theme(legend.position = "none", 
+              axis.text.x = element_text(angle = 25)) +
+        labs(x = "",
+             y = "count")
     })
-      
-     
-        
-        
- 
-     #emotional word count plot    
-
-         output$nrc_plot <- renderPlot({       
- 
-        nrc_filter.data <- data.frame(nrc_filter)
-        
-        nrc_filter.data %>% 
-            
-            ggplot(aes(x= emotion, y= count, fill = emotion)) +
-            geom_col() +
-            theme(legend.position = "none", 
-                  axis.text.x = element_text(angle = 25)) +
-            labs(x = "")
-      
-  })
+    
   
-  #nrc dictionary
+  #nrc dictionary table
   
   output$nrc_dictionary <- renderDT({
       
       #save as reactive datatable
       
       nrc_dic_reac <- nrc_dictionary %>% 
-          filter(word == input$word)
+          
+          #allows data to appear by default without search term entered
+          
+          filter(
+              if (input$word != "") {
+                  word == input$word
+              }
+              
+              else {word == word}
+          )
       
       datatable(nrc_dic_reac,
                 class = 'display',
                 rownames = FALSE,
                 selection = 'single',
                 colnames = c("Word", "Emotion", "Value"),
-                options = list(dom = 'tip'))
+                options = list(searching = FALSE))
   })
     
    

@@ -81,44 +81,50 @@ sentiment %>%
   
 ##NRC Sentiment
 
-nrc <- sentiment %>%
-  select(id, status_id, date, tweet_text1) %>% 
-  distinct(status_id, .keep_all = TRUE) %>% 
-  filter(id == "Sandy Hook")
-
-nrc_data <- get_nrc_sentiment(nrc$tweet_text1) %>% 
-  select(-positive, -negative) %>% 
-  summarise(colSums(nrc_data))
-
-#count of each emotion 
-emo_bar = colSums(nrc_data) 
-
-emo_sum = data.frame(count=emo_bar, emotion=names(emo_bar))
-emo_sum$emotion = factor(emo_sum$emotion, levels=emo_sum$emotion[order(emo_sum$count, decreasing = TRUE)])
-
-  
-  
-  emo_sum %>% 
-ggplot(aes(x= emotion, y= count, fill = emotion)) +
-  geom_col() +
-  theme(legend.position = "none", 
-        axis.text.x = element_text(angle = 25)) +
-  labs(x = "")
-
-
-
-
-
-
-
-
-
-
-
-
 #save nrc dictionary for search table 
 
 nrc_dictionary <- get_sentiment_dictionary(dictionary = "nrc", language = "english") %>% 
   select(-lang)
 
 write_rds(nrc_dictionary, "cleaned_tweets/nrc_dictionary.rds")
+
+
+#nrc emotional plot
+
+nrc <- combined_clean %>%
+  
+  #new input id
+  
+  mutate(id1 = id) %>% 
+  select(id1, status_id, date, word) %>% 
+  
+  #join tokenized words with words from nrc dictionary
+  
+  left_join(nrc_dictionary, by = c("word" = "word")) %>%
+  
+  #filter out non-matches
+  
+  filter(!is.na(sentiment)) %>% 
+  group_by(id1) %>% 
+  
+  #count words by emotional category
+  
+  count(sentiment) %>% 
+  filter(sentiment != "negative", sentiment != "positive") 
+
+
+#save nrc data
+write_rds(nrc, "cleaned_tweets/nrc.rds")
+
+
+nrc %>% 
+  filter(id1 == "Las Vegas (Route 91 Music Festival)") %>% 
+  
+  ggplot(aes(x = reorder(sentiment, -n), y = n, fill = sentiment)) +
+  geom_col() +
+  theme(legend.position = "none", 
+        axis.text.x = element_text(angle = 25)) +
+  labs(x = "",
+       y = "count")
+  
+  
