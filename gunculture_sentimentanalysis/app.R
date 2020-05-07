@@ -16,6 +16,7 @@ library(tidyverse)
 
 
 #load sentiment analysis data
+combined_clean <- read_rds("cleaned_tweets/combined_clean.rds")
 sentiment <- read_rds("cleaned_tweets/sentiment.rds")
 nrc_dictionary <- read_rds("cleaned_tweets/nrc_dictionary.rds")
 nrc <- read_rds("cleaned_tweets/nrc.rds")
@@ -138,7 +139,40 @@ ui <- navbarPage("Title",
                  ##TRENDS##
                  ##########
                  
-                 tabPanel("Trends"))
+                 tabPanel("Trends",
+                          
+                          h2("What language is used to talk about mass shootings?", align = "center"),
+                          
+                          br(), 
+                          
+                          h4("Most commmon words used"),
+                          
+                          plotOutput("full_common_words"),
+                          
+                          br(),
+                          br(),
+                          
+                          h4("Get a closer look at common words used for each shooting"),
+                          
+                          sidebarLayout(position = "right",
+                            sidebarPanel(
+                              
+                              helpText("select a mass shooting"),
+                              
+                              selectInput("id2", NULL,
+                                          choices = list(
+                                            "Sandy Hook" = "Sandy Hook",
+                                            "Pulse Nightclub" = "Pulse Nightclub",
+                                            "Las Vegas (Route 91 Music Festival)" = "Las Vegas (Route 91 Music Festival)",
+                                            "Parkland, FL (Marjory Stoneman Douglas High School)" = 
+                                              "Parkland, FL (Marjory Stoneman Douglas High School)"))),
+                              
+                              mainPanel(plotOutput("filtered_common_words"))
+                              
+                              
+                          )
+                          )
+                          )
     
     
     
@@ -228,11 +262,93 @@ server <- function(input, output) {
   })
     
    
-    
     ##########
     ##TRENDS##
     ##########
 
+  
+  #common words barplot of all 4 shootings
+  
+ output$full_common_words <- renderPlot({
+   
+   full_common_words <- combined_clean %>%
+     
+     #filter out names of places
+     filter(!word %in% c("sandy", "hook", "elementary", "school", "connecticut", "amp", "newtown", "ct",
+                         "pulse", "nightclub", "orlando", 
+                         "las", "vegas", 
+                         "parkland", "florida", "douglas", "stoneman", "17")) %>%
+     
+     count(word, sort = TRUE) %>%
+     top_n(15) %>%
+     mutate(word = reorder(word, n))
+   
+   #set expanded palette for plot
+   
+   colourCount = length(unique(full_common_words$word))
+   getPalette = colorRampPalette(brewer.pal(9, "Oranges"))
+   
+   full_common_words %>% 
+     ggplot(aes(x = word, y = n, fill = word)) +
+     geom_col() +
+     xlab(NULL) +
+     coord_flip() +
+     labs(x = "",
+          y = "Count") +
+     theme_minimal() +
+     scale_fill_manual(values = getPalette(colourCount)) +
+     theme(legend.position = "none",
+           panel.background = element_rect(fill = "seashell2"),
+           axis.text.y = element_text(size = 12, face = "bold"))
+   
+ }) 
+  
+ #filtered barplot by input
+  
+  output$filtered_common_words <- renderPlot({
+    
+    filtered_common_words <- combined_clean %>%
+      
+      #new id for shiny input
+      
+      mutate(id2 = id) %>% 
+      select(id2, word) %>% 
+      
+      filter(!word %in% c("sandy", "hook", "elementary", "school", "connecticut", "amp", "newtown", "ct",
+                          "pulse", "nightclub", "orlando", 
+                          "las", "vegas", 
+                          "parkland", "florida", "douglas", "stoneman", "17")) %>%
+      
+      #filter by shiny input
+      
+      filter(id2 == input$id2) %>% 
+      
+      count(word, sort = TRUE) %>%
+      top_n(15) %>%
+      mutate(word = reorder(word, n))
+    
+    #expanded palette
+    
+    colourCount2 = length(unique(filtered_common_words$word))
+    getPalette2 = colorRampPalette(brewer.pal(9, "Blues"))
+    
+    filtered_common_words %>% 
+      
+      ggplot(aes(x = word, y = n, fill = word)) +
+      geom_col() +
+      xlab(NULL) +
+      coord_flip() +
+      labs(x = "",
+           y = "Count") +
+      theme_minimal() +
+      scale_fill_manual(values = getPalette2(colourCount2)) +
+      theme(legend.position = "none",
+            panel.background = element_rect(fill = "snow1"),
+            axis.text.y = element_text(size = 12, face = "bold")) 
+    
+  })
+  
+  
 }
 
 # Run the application 

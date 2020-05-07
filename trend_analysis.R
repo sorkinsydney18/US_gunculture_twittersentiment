@@ -1,6 +1,7 @@
 ####TRENDS TAB########
 library(tidytext)
 library(tm)
+library(RColorBrewer)
 library(tidyverse)
 
 combined_clean <- read_rds("cleaned_tweets/combined_clean.rds")
@@ -9,7 +10,7 @@ sentiment <- read_rds("cleaned_tweets/sentiment.rds")
 ##common word plot
 
 #combined plot
-combined_clean %>%
+full_common_words <- combined_clean %>%
   
   #filter out names of places
   filter(!word %in% c("sandy", "hook", "elementary", "school", "connecticut", "amp", "newtown", "ct",
@@ -19,18 +20,35 @@ combined_clean %>%
   
   count(word, sort = TRUE) %>%
   top_n(15) %>%
-  mutate(word = reorder(word, n)) %>%
-  ggplot(aes(x = word, y = n)) +
-  geom_col(fill = "steelblue") +
+  mutate(word = reorder(word, n))
+
+#set expanded palette for plot
+
+colourCount = length(unique(full_common_words$word))
+getPalette = colorRampPalette(brewer.pal(9, "Oranges"))
+  
+full_common_words %>% 
+  ggplot(aes(x = word, y = n, fill = word)) +
+  geom_col() +
   xlab(NULL) +
   coord_flip() +
-  labs(x = "Count",
-       y = "Unique words") +
-  theme_minimal()
+  labs(x = "",
+       y = "Count") +
+  theme_minimal() +
+  scale_fill_manual(values = getPalette(colourCount)) +
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = "seashell2"),
+        axis.text.y = element_text(size = 12, face = "bold"))
 
 #filtered plots
 
-combined_clean %>%
+filtered_common_words <- combined_clean %>%
+  
+  #new id for shiny input
+  
+  mutate(id2 = id) %>% 
+  select(id2, word) %>% 
+  
   filter(!word %in% c("sandy", "hook", "elementary", "school", "connecticut", "amp", "newtown", "ct",
                       "pulse", "nightclub", "orlando", 
                       "las", "vegas", 
@@ -38,18 +56,31 @@ combined_clean %>%
   
   #filter by shiny input
   
-  filter(id == "Parkland, FL (Marjory Stoneman Douglas High School)") %>% 
+  filter(id2 == "Parkland, FL (Marjory Stoneman Douglas High School)") %>% 
   
   count(word, sort = TRUE) %>%
   top_n(15) %>%
-  mutate(word = reorder(word, n)) %>%
-  ggplot(aes(x = word, y = n)) +
-  geom_col(fill = "steelblue") +
+  mutate(word = reorder(word, n))
+
+#expanded palette
+
+colourCount2 = length(unique(filtered_common_words$word))
+getPalette2 = colorRampPalette(brewer.pal(9, "Blues"))
+
+filtered_common_words %>% 
+  
+  ggplot(aes(x = word, y = n, fill = word)) +
+  geom_col() +
   xlab(NULL) +
   coord_flip() +
   labs(x = "Count",
        y = "Unique words") +
-  theme_minimal()
+  theme_minimal() +
+  scale_fill_manual(values = getPalette2(colourCount2)) +
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = "snow1"),
+        axis.text.y = element_text(size = 12, face = "bold"))
+
 
 
 #common affect words plot (ALL)
