@@ -84,7 +84,8 @@ sentiment %>%
 #save nrc dictionary for search table 
 
 nrc_dictionary <- get_sentiment_dictionary(dictionary = "nrc", language = "english") %>% 
-  select(-lang)
+  select(-lang) %>% 
+  filter(sentiment != "positive", sentiment != "negative")
 
 write_rds(nrc_dictionary, "cleaned_tweets/nrc_dictionary.rds")
 
@@ -109,8 +110,7 @@ nrc <- combined_clean %>%
   
   #count words by emotional category
   
-  count(sentiment) %>% 
-  filter(sentiment != "negative", sentiment != "positive") 
+  count(sentiment)
 
 
 #save nrc data

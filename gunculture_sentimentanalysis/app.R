@@ -48,7 +48,8 @@ ui <- navbarPage("Title",
                                                   "Sandy Hook" = "Sandy Hook",
                                                   "Pulse Nightclub" = "Pulse Nightclub",
                                                   "Las Vegas (Route 91 Music Festival)" = "Las Vegas (Route 91 Music Festival)",
-                                                  "Parkland, FL (Marjory Stoneman Douglas High School)" = "Parkland, FL (Marjory Stoneman Douglas High School)"),
+                                                  "Parkland, FL (Marjory Stoneman Douglas High School)" = 
+                                                    "Parkland, FL (Marjory Stoneman Douglas High School)")
                                               ),
                                   br(),
                                   
@@ -82,17 +83,34 @@ ui <- navbarPage("Title",
                                                            "Sandy Hook" = "Sandy Hook",
                                                            "Pulse Nightclub" = "Pulse Nightclub",
                                                            "Las Vegas (Route 91 Music Festival)" = "Las Vegas (Route 91 Music Festival)",
-                                                           "Parkland, FL (Marjory Stoneman Douglas High School)" = "Parkland, FL (Marjory Stoneman Douglas High School)"),
+                                                           "Parkland, FL (Marjory Stoneman Douglas High School)" = 
+                                                             "Parkland, FL (Marjory Stoneman Douglas High School)")
                                                        ),
                                            br(),
                                            br(),
                                            
-                                           helpText("Search for a word to see which emotional categories it belongs under."),
+                                           helpText("Search for a word or emotional category to explore the dictionary."),
                                            
                                            br(),
                                            
-                                           textInput("word", NULL,
-                                                     placeholder = '"happy"')),
+                                           #word search for table
+                                           
+                                           textInput("word", "Word",
+                                                     placeholder = '"happy"'),
+                                           
+                                           #emotional filter for table
+                                           
+                                           checkboxGroupInput("sentiment", "Emotion",
+                                                        choices = list(
+                                                          "All" = "",                                                          "Anger" = "anger",
+                                                          "Anticipation" = "anticipation",
+                                                          "Disgust" = "disgust",
+                                                          "Fear" = "fear",
+                                                          "Joy" = "joy",
+                                                          "Sadness" = "sadness",
+                                                          "Surprise" = "surprise",
+                                                          "Trust" = "trust"),
+                                                        selected = "")),
                                        
                                        mainPanel(
                                            plotOutput("nrc_plot"),
@@ -189,7 +207,17 @@ server <- function(input, output) {
               }
               
               else {word == word}
+          ) %>% 
+        
+        filter(
+          if (input$sentiment != "") {
+            sentiment %in% input$sentiment
+          }
+          
+          else {sentiment == sentiment}
           )
+        
+        #filter by emotion
       
       datatable(nrc_dic_reac,
                 class = 'display',
