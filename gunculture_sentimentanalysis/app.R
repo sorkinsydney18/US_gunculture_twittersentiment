@@ -21,14 +21,27 @@ sentiment <- read_rds("cleaned_tweets/sentiment.rds")
 nrc_dictionary <- read_rds("cleaned_tweets/nrc_dictionary.rds")
 nrc <- read_rds("cleaned_tweets/nrc.rds")
 
-ui <- navbarPage("Title",
+ui <- navbarPage("",
                  theme = shinytheme("journal"),
                  
                  #########
                  ##ABOUT##
                  #########
                  
-                 tabPanel("About"),
+                 tabPanel("About",
+                          
+                          h1("Loaded Words", align = "center"),
+                          
+                          imageOutput("gun_silo", width = "100%", height = "100%"),
+                          
+                          br(),
+                          
+                          h4("Sandy Hook, Orlando, Las Vegas, and Parkland were some of the deadliest
+                             shootings in American History. How did Twitter respond?")
+                          
+                          
+                          
+                          ),
                  
                  #############
                  ##SENTIMENT##
@@ -171,7 +184,27 @@ ui <- navbarPage("Title",
                               
                               
                           )
-                          )
+                          ),
+                 
+                 #############
+                 ##FOOTNOTES##
+                 #############
+                 
+                 
+                 tabPanel("Footnotes",
+                          
+                          br(),
+                          br(),
+                          p("Code used to source this project can be found ",
+                            a(href = "https://github.com/sorkinsydney18/gened1073_final", "here.")),
+                          
+                          p("To conduct sentiment analysis I used the Syuzhet CRAN package and NRC lexicon
+                            developed by Saif Mohammad."),
+                          
+                          p("To explore more of my projects check out my GitHub account ",
+                            a(href = "https://github.com/sorkinsydney18", "here.")))
+                 
+                 
                           )
     
     
@@ -185,6 +218,14 @@ server <- function(input, output) {
     ##ABOUT##
     #########
 
+  output$gun_silo <- renderImage({
+    
+    list(src = 'www/gun_silo.jpg',
+         height = 300,
+         width = 500,
+         style = "display: block; margin-left: auto; margin-right: auto;")},
+    deleteFile = FALSE
+  )
     #############
     ##SENTIMENT##
     #############
