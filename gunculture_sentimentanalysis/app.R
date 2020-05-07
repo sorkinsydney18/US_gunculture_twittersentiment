@@ -30,18 +30,67 @@ ui <- navbarPage("",
                  
                  tabPanel("About",
                           
+                          fluidPage(
+                          
                           h1("Loaded Words", align = "center"),
+                          
+                          fluidRow(column(2), column(8,
+                                                     h4(id = "sub_heading", "Sandy Hook, Orlando, Las Vegas, and Parkland were some of the deadliest
+                                                        shootings in American History. How did Twitter respond?", 
+                                                        align = "center",
+                                                        style = "color: #b22222;"))
+                                                     ),
+                          
+                       
+                          
+      
                           
                           imageOutput("gun_silo", width = "100%", height = "100%"),
                           
                           br(),
+                          br(),
                           
-                          h4("Sandy Hook, Orlando, Las Vegas, and Parkland were some of the deadliest
-                             shootings in American History. How did Twitter respond?")
+                          fluidRow(column(2), column(8,
+                          
+                          h4("Purpose", 
+                             align = "center",
+                             style = "color: #b22222;"),
+                          
+                          span(),
+                          
+                          p("The Sandy Hook Elementary school shooting was one of the deadliest shootings in U.S. history. 
+                            Then Pulse Nightclub happened. Then Las Vegas happened. Then Parkland happened. 
+                            These four shootings mark some of the most horrific events in recent history, 
+                            but these shootings are just 4 out of ",
+                            
+                            a(href = "https://www.vox.com/a/mass-shootings-america-sandy-hook-gun-violence", "2,444"),
+                            
+                            " mass shootings in the U.S. 
+                            The U.S. leads all developed countries in gun-related deaths yet has some 
+                            of the weakest gun laws internationally. The debate surrounding firearm 
+                            restriction has reached a fever pitch since Sandy Hook. To get a better sense 
+                            of the national conversation, I looked to Twitter for answers. "),
+                          
+                          br(),
+                          
+                          imageOutput("divider", width = "100%", height = "100%"),
+                          
+                          br(),
+                        
+                          h4("About this Project", 
+                             align = "center",
+                             style = "color: #b22222;"),
+                          
+                          span(),
+                          
+                          p("This project seeks to provide a snapshot of online Twitter dialogue post-shooting. 
+                            How are we talking about mass shootings? What emotions are most prevalent? 
+                            What words do we use to talk about these shootings? How has the language used 
+                            to describe each shooting changed? Explore each figure to get an understanding 
+                            of how America talked and felt after Sandy Hook, Orlando, Las Vegas, and Parkland.")))
                           
                           
-                          
-                          ),
+                          )),
                  
                  #############
                  ##SENTIMENT##
@@ -226,6 +275,16 @@ server <- function(input, output) {
          style = "display: block; margin-left: auto; margin-right: auto;")},
     deleteFile = FALSE
   )
+    
+  output$divider <- renderImage({
+    
+    list(src = 'www/divider.png',
+         height = 40,
+         width = 80,
+         style = "display: block; margin-left: auto; margin-right: auto;")},
+    deleteFile = FALSE
+  )
+    
     #############
     ##SENTIMENT##
     #############
