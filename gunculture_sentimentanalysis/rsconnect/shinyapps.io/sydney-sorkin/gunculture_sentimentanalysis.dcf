@@ -1,0 +1,12 @@
+name: gunculture_sentimentanalysis
+title: gunculture_sentimentanalysis
+username:
+account: sydney-sorkin
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2268148
+bundleId: 3121912
+url: https://sydney-sorkin.shinyapps.io/gunculture_sentimentanalysis/
+when: 1588966142.07387
+asMultiple: FALSE
+asStatic: FALSE
