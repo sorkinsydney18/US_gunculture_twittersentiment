@@ -11,6 +11,7 @@ library(shiny)
 library(shinythemes)
 library(DT)
 library(tm)
+library(RColorBrewer)
 library(tidyverse)
 
 
@@ -58,7 +59,7 @@ ui <- navbarPage("",
                           
                           span(),
                           
-                          p("The Sandy Hook Elementary school shooting was one of the deadliest shootings in U.S. history. 
+                          p("The Sandy Hook Elementary School shooting was one of the deadliest shootings in U.S. history. 
                             Then Pulse Nightclub happened. Then Las Vegas happened. Then Parkland happened. 
                             These four shootings mark some of the most horrific events in recent history, 
                             but these shootings are just 4 out of ",
@@ -85,8 +86,8 @@ ui <- navbarPage("",
                           
                           p("This project seeks to provide a snapshot of online Twitter dialogue post-shooting. 
                             How are we talking about mass shootings? What emotions are most prevalent? 
-                            What words do we use to talk about these shootings? How has the language used 
-                            to describe each shooting changed? Explore each figure to get an understanding 
+                            What words do we use to talk about these shootings? How has the language 
+                            to describe each shooting changed? Explore each page to get an understanding 
                             of how America talked and felt after Sandy Hook, Orlando, Las Vegas, and Parkland.")))
                           
                           
@@ -97,12 +98,22 @@ ui <- navbarPage("",
                  #############
                  
                  tabPanel("Sentiment",
+                          fluidPage(
                           tabsetPanel(
                               tabPanel("Daily Sentiment",
+                                       
+                                       fluidRow(column(2),
+                                       
+                                       h3("How positive or negative were Tweets after each shooting?",
+                                          align = "left"),
+                                       
+                                       br(),
+                                       br(),
                           
                           sidebarLayout(
                               sidebarPanel(
-                                  h4("Track tweet sentiment each day after the shooting"),
+                                  h4("Track tweet sentiment each day after the shooting",
+                                     style = "color: #b22222;"),
                                   
                                   br(), 
                                   
@@ -116,7 +127,7 @@ ui <- navbarPage("",
                                               ),
                                   br(),
                                   
-                                  p("Sentiment scores range from -1 to 1, most negative to most postive respectively")),
+                                  p("Sentiment scores range from (-2, 1), most negative to most postive respectively")),
                               
                               
                               mainPanel(plotOutput("weekly_sentiment"),
@@ -127,17 +138,41 @@ ui <- navbarPage("",
                               
                               span(),
                               
+                              column(12,
+                              
                               p("Each tweet is broken down into a set of words. Each word is then matched with
                                 an existing sentiment score. The total sentiment score for each tweet is simply
                                 the sum of scores for each word. The plot above shows the average tweet sentiment
-                                each day.")))),
+                                each day."))
+                              
+                              )
+                              )
+                          
+                          )),
                           
                           tabPanel("Sentiment By Emotion",
+                                   
+                                   fluidRow(column(2),
+                                            
+                                            h3("What emotions were most prominent in Tweets after each shooting?",
+                                               align = "left"),
+                                            
+                                            div(),
+                                            
+                                            column(1),
+                                            
+                                            h4("'Fear' and 'Anger' most common emotions displayed after each 
+                                               shooting",
+                                               align = "left",
+                                               style = "color: #a9a9a9;"),
+                                   
+                                   br(),
                                    
                                    sidebarLayout(
                                        sidebarPanel(
                                            
-                                           h4("See the emotional breakdown of all tweets"),
+                                           h4("See the emotional breakdown of all tweets",
+                                              style = "color: #b22222;"),
                                            
                                            br(),
                                            
@@ -179,23 +214,26 @@ ui <- navbarPage("",
                                            plotOutput("nrc_plot"),
                                                  
                                                  div(),
+                                           
+                                           column(12,
                                                  
-                                                 p("The emotional count of each tweet is compromised by finding words in each tweet that fall under the 
-                                                   predetermined emotional categories: anger, anticipation, disgust, fear, joy, sadness, surprise, trust.
-                                                   Any word that is tagged recieves a score of 1 for that particular category. The plot above shows the 
-                                                   count of words for each category."),
-                                                 
-                                                 br(),
-                                                 
-                                           #ADD TITLE INSTEAD?
-                                                 p("For more on the emotional lexicon used to score the tweets see below."),
+                                                 p("The emotional count of each tweet is compromised by finding words in each tweet 
+                                                 that fall under the predetermined emotional categories: anger, anticipation, disgust, 
+                                                 fear, joy, sadness, surprise, trust. Any word that is tagged recieves a score of 1 
+                                                 for that particular category. The plot above shows the count of words for each category. 
+                                                   For more on the emotional lexicon used to score the tweets see below.")),
+                                           
+                                           br(),
+                                           br(),
+                                           
+                                                 h5("Emotional Dictionary (NRC Lexicon)"),
                                            
                                            br(),
                                            
                                            DTOutput("nrc_dictionary"))
                                        )
                                    )
-                                   )),
+                                   )))),
                  
                  ##########
                  ##TRENDS##
@@ -203,23 +241,29 @@ ui <- navbarPage("",
                  
                  tabPanel("Trends",
                           
-                          h2("What language is used to talk about mass shootings?", align = "center"),
+                          fluidPage(
+                          
+                          fluidRow(column(2),
+                          
+                          h2("What language is used to talk about mass shootings?", align = "left"),
                           
                           br(), 
                           
-                          h4("Most commmon words used"),
+                          h4("Most commmon words used",
+                             style = "color: #b22222;"),
                           
                           plotOutput("full_common_words"),
                           
                           br(),
                           br(),
                           
-                          h4("Get a closer look at common words used for each shooting"),
+                          h4("Get a closer look at common words used for each shooting",
+                             style = "color: #b22222;")),
                           
                           sidebarLayout(position = "right",
                             sidebarPanel(
                               
-                              helpText("select a mass shooting"),
+                              helpText("Select a mass shooting"),
                               
                               selectInput("id2", NULL,
                                           choices = list(
@@ -233,7 +277,7 @@ ui <- navbarPage("",
                               
                               
                           )
-                          ),
+                          )),
                  
                  #############
                  ##FOOTNOTES##
@@ -304,8 +348,10 @@ server <- function(input, output) {
             #add positive/negative indicator
             geom_hline(yintercept=0, linetype="dashed", color = "firebrick1") +
             theme_minimal() +
-            theme(panel.background = element_rect(fill = "lightblue")) +
-            scale_x_date(date_labels="%b %d",date_breaks  ="1 day")
+            theme(panel.background = element_rect(fill = "lightblue"),
+                  axis.text = element_text(size = 13),
+                  axis.text.x = element_text(angle = 8)) +
+            scale_x_date(date_labels="%b %d %Y",date_breaks  ="1 day")
         
     })
     
@@ -319,7 +365,8 @@ server <- function(input, output) {
         ggplot(aes(x = reorder(sentiment, -n), y = n, fill = sentiment)) +
         geom_col() +
         theme(legend.position = "none", 
-              axis.text.x = element_text(angle = 25)) +
+              axis.text.x = element_text(angle = 25),
+              axis.text = element_text(size = 13)) +
         labs(x = "",
              y = "count")
     })
@@ -399,7 +446,8 @@ server <- function(input, output) {
      scale_fill_manual(values = getPalette(colourCount)) +
      theme(legend.position = "none",
            panel.background = element_rect(fill = "seashell2"),
-           axis.text.y = element_text(size = 12, face = "bold"))
+           axis.text.y = element_text(size = 13, face = "bold"),
+           axis.text.x = element_text(size = 13))
    
  }) 
   
@@ -444,7 +492,8 @@ server <- function(input, output) {
       scale_fill_manual(values = getPalette2(colourCount2)) +
       theme(legend.position = "none",
             panel.background = element_rect(fill = "snow1"),
-            axis.text.y = element_text(size = 12, face = "bold")) 
+            axis.text.y = element_text(size = 13, face = "bold"),
+            axis.text.x = element_text(size = 13)) 
     
   })
   

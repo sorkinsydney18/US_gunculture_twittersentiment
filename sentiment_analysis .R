@@ -74,10 +74,12 @@ sentiment %>%
   #add positive/negative indicator
   geom_hline(yintercept=0, linetype="dashed", color = "firebrick1") +
   theme_minimal() +
-  theme(panel.background = element_rect(fill = "lightblue")) +
+  theme(panel.background = element_rect(fill = "lightblue"),
+        axis.text = element_text(size = 13),
+        axis.text.x = element_text(angle = 25)) +
   
   #add date for all x axis ticks
-  scale_x_date(date_labels="%b %d",date_breaks  ="1 day")
+  scale_x_date(date_labels="%b %d %Y",date_breaks  ="1 day")
   
 ##NRC Sentiment
 
