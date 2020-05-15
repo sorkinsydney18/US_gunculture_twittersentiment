@@ -1,6 +1,6 @@
 # American Gun Culture Sentiment Analysis
 
-This project seeks to provide a snapshot of online Twitter dialogue post-shooting. 
+This project seeks to provide a snapshot of online Twitter dialogue post-shooting.
 How are we talking about mass shootings? What emotions are most prevalent? 
 What words do we use to talk about these shootings? How has the language 
 to describe each shooting changed? Explore each page to get an understanding 
