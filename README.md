@@ -6,4 +6,4 @@ What words do we use to talk about these shootings? How has the language
 to describe each shooting changed? Explore each page to get an understanding 
 of how America talked and felt after Sandy Hook, Orlando, Las Vegas, and Parkland.
 
-See the fully Shiny App here: https://sydney-sorkin.shinyapps.io/gunculture_sentimentanalysis/
+See the full Shiny App here: https://sydney-sorkin.shinyapps.io/gunculture_sentimentanalysis/
